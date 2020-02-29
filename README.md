@@ -1,4 +1,4 @@
-## Problems from Websites
+## Problems from LeetCode
 
 
 Ignore ".vscode" directory and "output.exe".
