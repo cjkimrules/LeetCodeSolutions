@@ -5,6 +5,9 @@
 
 using namespace std;
 
+// Time complexity: Size of l1 + Size of l2.
+// This is still a linear time, since we only loop through both linked lists once.
+
 ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
     ListNode* MergedList = l1;
     // Two lists will be merged into one to "l1".
