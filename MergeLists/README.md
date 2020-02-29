@@ -1,5 +1,5 @@
-# Merge 2 Linked Lists
+## Merge 2 Linked Lists
 
-## Detail Info
+### Detail Info
 Two sorted linked lists will be given.
 The task is to merge them into a sorted linked list.
