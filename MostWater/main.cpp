@@ -10,7 +10,6 @@ Explain: Given an array of heights with indices being x-axis value.
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cmath>
 
 using namespace std;
 
