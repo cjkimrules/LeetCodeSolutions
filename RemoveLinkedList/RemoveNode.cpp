@@ -5,17 +5,14 @@
 
 using namespace std;
 
-// input root pointer will remain unchanged.
 int LinkedListSize(ListNode* root){
     int Size = 0;
-    ListNode* tmp = root;
-    while(tmp != nullptr){
-        tmp = tmp->next;
+    while(root != nullptr){
+        root = root->next;
         Size ++;
     }
     return Size;
 }
-
 
 // Time complexity: Size of linked list
 
