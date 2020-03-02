@@ -28,7 +28,13 @@ void Reverse(vector<int>& vec, int low, int high){
 }
 
 
-// Time Complexity is 
+// Time Complexity is (Count of Numbers)
+// The worst case, we have to loop through all the way (lowest digit to highest),
+// then, loop through again to find the next bigger number.
+// Then we swap all the digits that follows after the swapped digit.
+
+// Found this website for better understanding.
+// https://leetcode.com/articles/next-permutation/
 
 void NextPermutation(vector<int>& nums){
     // Get the last digit.
