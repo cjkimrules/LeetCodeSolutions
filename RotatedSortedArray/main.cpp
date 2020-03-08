@@ -60,11 +60,7 @@ using namespace std;
  */
 
 
-void FindValue(vector<int>& nums, int& Low, int& High, int& PrevVal, int MidPoint){
-    Low = 0;
-    High = nums.size() - 1;
-    PrevVal = nums[MidPoint];
-
+void FindValue(const vector<int>& nums, int& Low, int& High, int& PrevVal, int MidPoint){
     // Low never gets equal to or greater than High, they stop when they are next to each other.
     // Check with "-1".
     while(Low < High){
@@ -98,10 +94,11 @@ int FindReverseIndex(vector<int>& nums){
     // This could be done in recursive way, but there is no guarantee on the size of the list.
     // We will not use recursion to save the stack overflow.
 
-    int Low, High, Value;
+    int Low = 0;
+    int High = (nums.size() / 2) - 1;
+    int Value = nums[High];
 
-    vector<int> LowerHalf(nums.begin(), nums.begin() + nums.size() / 2);
-    FindValue(LowerHalf, Low, High, Value, LowerHalf.size() - 1);
+    FindValue(nums, Low, High, Value, High);
 
     // If we found it, Low has the index of Highest Number and PrevVal has the value.
     // One way to know whether we found it or not is to check Low, if there weren't any,
@@ -110,13 +107,16 @@ int FindReverseIndex(vector<int>& nums){
         return Low;
     }
 
-    vector<int> UpperHalf(nums.begin() + nums.size() / 2, nums.end());
-    FindValue(UpperHalf, Low, High, Value, 0);
+    Low = nums.size() / 2;
+    High = nums.size() - 1;
+    Value = nums[Low];
+
+    FindValue(nums, Low, High, Value, Low);
     
-    if(High != UpperHalf.size() - 1){
+    if(High != nums.size() - 1){
         // Low is from 0 to upper half. We need to make sure to convert the index back to
         // index of Entire Array.
-        return Low + LowerHalf.size();
+        return Low;
     }
 
     // There may ba an awkward case where we have divided exactly where the reverse was occurring.
