@@ -21,61 +21,169 @@ using namespace std;
 
 // Time Complexity is Log(Size of Array) as given in the problem.
 
-// We still want to approach this problem as if it was sorted and do the same
-// binary search. One trick is that we CANNOT blindly believe the number we are
-// looking at, so we need to check on its neighbors for every landing number.
-//     v
-// 4 5 6 1 2
-// Here at index of 2, we will still check its neighbors (left and right) to see
-// if there are any descending. If spotted, move accordingly.
-// If we followed the wrong path, because of the rotation, then we remember
-// which path we went and adjust its movement 2nd time. It will be still Log N time.
+/* SOLUTION APPROACH DOCUMENT
+ * 
+ * There are 2 possible ways for us to think to solve this problem.
+ * Find where it has a reverse (suddenly gets smaller), and separately look at two arrays.
+ * Or, just start doing binary search and tweak a bit of high it does the search.
+ * 
+ * This can be definitely solved in linear time by looping through the array and find the
+ * reverse and make it into a proper sorted array. Then do binary search, but that makes it
+ * linear time, but not log time.
+ * 
+ * First, we start from the half way. We take a look at lower half first.
+ * When we detect higher number than previous number, find higher half,
+ * if that was lower number than find lower half.
+ * 
+ * Take a look at this example.
+ *              v
+ * {10,11,1,2,3,4,5,6,7,8,9}
+ * We start at value 4. As we have promised, we take a look at lower half first.
+ *        v
+ * {10,11,1,2,3,4,5,6,7,8,9}
+ * Value 1 is smaller than previous value 4, so we keep looking at the lower half.
+ *     v   
+ * {10,11,1,2,3,4,5,6,7,8,9}
+ * When we detect higher number, make sure there is no other higher number in between value 1 and 11.
+ * Because value 11 might not be the highest number (which is where reverse happens).
+ * In this case we were lucky and found the highest, we know it because the index 1 and 2 have no inner values.
+ * 
+ * Now we found the reverse, we split the array into 2 (not literally, we will still use one array),
+ * and use binary search for the one that the number is in.
+ * If our finding value was smaller than the first element value, we know to find it from the second half.
+ * If it was the same or greater than the first element value, we know to find it from the first half.
+ * 
+ * After we do this for upper half (in case we didn't find the right value), we can safely assume
+ * there was no reverse and just use binary search the normal way.
+ */
 
-int search(vector<int>& nums, int target){
-    int Low, High;
 
-    if(nums[nums.size() / 2] == target){
-        // If I find the target number (happens to be exactly at the middle),
-        // then return it.
-        return nums.size() / 2;
-    }else if(nums[nums.size() / 2] < target){
-        // Set Low as middle and look at the Higher portion of array.
-        Low = nums.size() / 2;
-        High = nums.size() - 1;
-    }else{
-        // Set High as middle and look at the Lower portion of array.
-        Low = 0;
-        High = nums.size() / 2;
+void FindValue(vector<int>& nums, int& Low, int& High, int& PrevVal, int MidPoint){
+    Low = 0;
+    High = nums.size() - 1;
+    PrevVal = nums[MidPoint];
+
+    // Low never gets equal to or greater than High, they stop when they are next to each other.
+    // Check with "-1".
+    while(Low < High){
+        int Mid = Low + (High + 1 - Low) / 2;
+        // If Mid was lower, that means from Mid to High, it's ascending correctly.
+        // Take a look at lower half.
+        if(nums[Mid] < PrevVal){
+            High = Mid;
+        }
+        // If Mid was higher, then in between Mid and High, there must be a reverse.
+        // Take a look at higher half.
+        else if(nums[Mid] > PrevVal){
+            if(Low == Mid){
+                Low ++;
+            }else{
+                Low = Mid;
+            }
+        }else{
+            High --;
+        }
+
+        PrevVal = nums[Mid];
+    }
+}
+
+
+// This method takes a look at list of numbers and find where the reverse is happening in Log N time.
+// Return value will be the index of Highest Number
+// Input: {10,11,1,2,3,4,5,6,7,8,9}, Output: 1
+int FindReverseIndex(vector<int>& nums){
+    // This could be done in recursive way, but there is no guarantee on the size of the list.
+    // We will not use recursion to save the stack overflow.
+
+    int Low, High, Value;
+
+    vector<int> LowerHalf(nums.begin(), nums.begin() + nums.size() / 2);
+    FindValue(LowerHalf, Low, High, Value, LowerHalf.size() - 1);
+
+    // If we found it, Low has the index of Highest Number and PrevVal has the value.
+    // One way to know whether we found it or not is to check Low, if there weren't any,
+    // Then we know Low must've stayed at 0 unchanged since they are sorted.
+    if(Low != 0){
+        return Low;
     }
 
-    // First time binary search, I'll call it a "Naive" search.
-    // It will try to find the number like a normal binary search.
-    // If the number was on the other side due to rotation, then we will have
-    // "Adjusted" search.
+    vector<int> UpperHalf(nums.begin() + nums.size() / 2, nums.end());
+    FindValue(UpperHalf, Low, High, Value, 0);
+    
+    if(High != UpperHalf.size() - 1){
+        // Low is from 0 to upper half. We need to make sure to convert the index back to
+        // index of Entire Array.
+        return Low + LowerHalf.size();
+    }
+
+    // There may ba an awkward case where we have divided exactly where the reverse was occurring.
+    // Last step is to ensure that didn't happen. If prev is bigger, then we know reverse happened.
+    if(nums.size() > 1 && (nums[nums.size() / 2 - 1] > nums[nums.size() / 2])){
+        return nums.size() / 2 - 1;
+    }
+    // When it was not found, return -1 as index to indicate this array is sorted without reverse.
+    return -1;
+}
+
+int BinarySearch(vector<int>& nums, int target){
+    int Low = 0;
+    int High = nums.size() - 1;
 
     while(Low < High){
+        int Mid = Low + (High - Low) / 2;
 
+        if(nums[Mid] < target){
+            if(Low == Mid){
+                Low ++;
+            }else{
+                Low = Mid;
+            }
+        }else if(nums[Mid] > target){
+            High = Mid;
+        }else{
+            High --;
+        }
     }
 
-    // The fact that we are still here is because the "Naive" search didn't work.
-    // Now that we know that it doesn't work, we can tweek it a little. We cannot do this
-    // before hand into "Naive" search, because we don't know where the rotation happened.
-    bool isAscending;
-    if(nums[nums.size() / 2] < target){
-        // Set Low as middle and look at the Higher portion of array.
-        Low = nums.size() / 2;
-        High = nums.size() - 1;
+    // If the number was not found, then return -1.
+    if(nums[Low] != target) return -1;
+
+    return Low;
+}
+
+// If not found, returns -1
+int search(vector<int>& nums, int target){
+    int index = FindReverseIndex(nums);
+    
+    // If this is sorted without reverse, find all range as binary search.
+    if(index == -1){
+        return BinarySearch(nums, target);
     }else{
-        // Set High as middle and look at the Lower portion of array.
-        Low = 0;
-        High = nums.size() / 2;
+        // If first element (where reverse happened) is smaller than the target value,
+        // we know we have to look for it in the higher values, which is first half.
+        if(nums[0] <= target){
+            // We add 1 to "nums.begin() + index + 1" because it's exclusive.
+            vector<int> LowerHalf(nums.begin(), nums.begin() + index + 1);
+            return BinarySearch(LowerHalf, target);
+        }
+        // If the value we are looking for is smaller than the first value, we know
+        // it will be in the lower values, which is second half.
+        // Make sure the index returned is the index of Highest. Add 1 to it to point
+        // to the lowest number in the array.
+        else{
+            vector<int> UpperHalf(nums.begin() + index + 1, nums.end());
+            // Make sure to add the offset (index + 1) to adjust the returned index
+            // since we only did binary search with the upper half.
+            return BinarySearch(UpperHalf, target) + index + 1;
+        }
     }
 }
 
 
 void Tester(const int TestNum, const string Memo, vector<int>& input, const int target, const int output){
     cout << "#" << TestNum << " " << Memo << "            ";
-
+    
     if(search(input, target) == output){
         cout << "Passed" << endl;
     }else{
@@ -84,6 +192,20 @@ void Tester(const int TestNum, const string Memo, vector<int>& input, const int 
 }
 
 int main(){
-    Tester(1, "Simple", vector<int>{4,5,6,7,0,1,2}, 0, 4);
-    Tester(1, "Simple", vector<int>{4,5,6,7,0,1,2}, 3, -1);
+    vector<int> test;
+
+    test.assign({4,5,6,7,0,1,2});
+    Tester(1, "Starts High Number, Find Low Number, Odd Size", test, 0, 4);
+    test.assign({3,4,5,6,7,0,1,2});
+    Tester(2, "Starts High Number, Find Low Number, Even Size", test, 0, 5);
+    test.assign({6,7,0,1,2,3,4});
+    Tester(3, "Starts Low Number, Find High Number, Odd Size", test, 7, 1);
+    test.assign({6,7,0,1,2,3,4,5});
+    Tester(4, "Starts Low Number, Find High Number, Even Size", test, 6, 0);
+    test.assign({1,2,3,4,5,6,7});
+    Tester(4, "No Reverse, Increasing Order, Odd Size", test, 3, 2);
+    test.assign({1,2,3,4,5,6});
+    Tester(4, "No Reverse, Increasing Order, Even Size", test, 6, 5);
+    test.assign({3,4,5,6,7,0,1,2});
+    Tester(4, "Not Found", test, 9, -1);
 }
