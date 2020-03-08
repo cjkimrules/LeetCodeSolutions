@@ -9,6 +9,7 @@ Explain: Given an array of ints. They are sorted ascending manner then at
          Return -1 when not found.
 
          Input: {3,4,5,1,2}, 1, Output: 3
+         Input: {3,4,5,1,2}, 0, Output: -1
 *******************************************************************************/
 
 #include <iostream>
@@ -25,11 +26,11 @@ using namespace std;
  * 
  * There are 2 possible ways for us to think to solve this problem.
  * Find where it has a reverse (suddenly gets smaller), and separately look at two arrays.
- * Or, just start doing binary search and tweak a bit of high it does the search.
+ * Or, just start doing binary search and tweak a bit of how it does the search.
  * 
  * This can be definitely solved in linear time by looping through the array and find the
  * reverse and make it into a proper sorted array. Then do binary search, but that makes it
- * linear time, but not log time.
+ * linear time, not log time.
  * 
  * First, we start from the half way. We take a look at lower half first.
  * When we detect higher number than previous number, find higher half,
@@ -42,6 +43,7 @@ using namespace std;
  *        v
  * {10,11,1,2,3,4,5,6,7,8,9}
  * Value 1 is smaller than previous value 4, so we keep looking at the lower half.
+ * Because we know betwen 1 and 4, there was no decrease which means no reverse.
  *     v   
  * {10,11,1,2,3,4,5,6,7,8,9}
  * When we detect higher number, make sure there is no other higher number in between value 1 and 11.
