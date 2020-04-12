@@ -1,8 +1,8 @@
 /******************************************************************************
 Author: CJ Kim
-Date: 2/28/2020
+Date: 4/12/2020
 Title: Basic Calculator
-Explain: Addition and Subtraction with brackets.
+Explain: Basic Calculator
 		 Only allowed bracket is "(" and ")".
 		 Other brackets will be taken as unknown.
 *******************************************************************************/
