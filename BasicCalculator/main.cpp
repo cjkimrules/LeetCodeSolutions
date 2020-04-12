@@ -2,7 +2,7 @@
 Author: CJ Kim
 Date: 4/12/2020
 Title: Basic Calculator
-Explain: Basic Calculator
+Explain: +,-,*,/,(),Ans
 		 Only allowed bracket is "(" and ")".
 		 Other brackets will be taken as unknown.
 *******************************************************************************/
