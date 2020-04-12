@@ -31,6 +31,7 @@ bool Calculator::BracketCounter(string a_input){
 
 Calculator::Calculator(){
 	m_tree = new CalcTree();
+	m_prevResult = 0;
 }
 
 Calculator::~Calculator(){
@@ -82,32 +83,40 @@ vector<string>* ParseString(string a_input){
 		}
 
 		if(isNumber){
-			// In a numbering system, there can only be one dot.
-			// ex) 12.4562.23 <- does not work.
-			bool isDotAllowed = true;
-
-			// Numbers can be anything from "1", "2.4", "-0.45", ".89"
-			// "-" has to be distinguished because there is "-" for symbol.
-			if(isCharNumber(input[pointer]) || input[pointer] == '.' || input[pointer] == '-'){
-				if(input[pointer] == '.'){
-					isDotAllowed = false;
-				}
-
+			// Consider previous calculation first
+			if(input[pointer] == 'A' || input[pointer] == 'a'){
 				s += input[pointer];
 				pointer ++;
-			}else{
-				delete ret;
-				return nullptr;
 			}
+			// When it was an actual number
+			else{
+				// In a numbering system, there can only be one dot.
+				// ex) 12.4562.23 <- does not work.
+				bool isDotAllowed = true;
 
-			while(pointer < input.size() &&
-					(isCharNumber(input[pointer]) || (isDotAllowed && input[pointer] == '.'))){
-				if(input[pointer] == '.'){
-					isDotAllowed = false;
+				// Numbers can be anything from "1", "2.4", "-0.45", ".89"
+				// "-" has to be distinguished because there is "-" for symbol.
+				if(isCharNumber(input[pointer]) || input[pointer] == '.' || input[pointer] == '-'){
+					if(input[pointer] == '.'){
+						isDotAllowed = false;
+					}
+
+					s += input[pointer];
+					pointer ++;
+				}else{
+					delete ret;
+					return nullptr;
 				}
 
-				s += input[pointer];
-				pointer ++;
+				while(pointer < input.size() &&
+						(isCharNumber(input[pointer]) || (isDotAllowed && input[pointer] == '.'))){
+					if(input[pointer] == '.'){
+						isDotAllowed = false;
+					}
+
+					s += input[pointer];
+					pointer ++;
+				}
 			}
 		}else{
 			if(isCharSymbol(input[pointer])){
@@ -150,11 +159,16 @@ void Calculator::ParseTree(CalcTree* a_tree, vector<string>* a_inputs, int& a_in
 				a_tree->Add(0.0f, a_inputs->at(i), nullptr);
 			}else{
 				long double num;
-				// If negative number
-				if(a_inputs->at(i)[0] == '-'){
-					num = -1 * stold(a_inputs->at(i).substr(1));
+				
+				if(a_inputs->at(i) == "A" || a_inputs->at(i) == "a"){
+					num = m_prevResult;
 				}else{
-					num = stold(a_inputs->at(i));
+					// If negative number
+					if(a_inputs->at(i)[0] == '-'){
+						num = -1 * stold(a_inputs->at(i).substr(1));
+					}else{
+						num = stold(a_inputs->at(i));
+					}
 				}
 
 				a_tree->Add(num, "", nullptr);
@@ -169,6 +183,7 @@ long double Calculator::CalculateTree(){
 	long double result = m_tree->Compute();
 	m_tree->Destroy();
 
+	m_prevResult = result;
 	return result;
 }
 

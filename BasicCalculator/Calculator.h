@@ -7,6 +7,7 @@ using namespace std;
 
 class Calculator{
 	CalcTree* m_tree;
+	long double m_prevResult;
 
 	bool BracketCounter(string a_input);
 	void ParseTree(CalcTree* a_tree, vector<string>* a_inputs, int& index);

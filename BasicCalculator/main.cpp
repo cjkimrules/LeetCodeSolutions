@@ -31,6 +31,7 @@ int main(){
 
     string input;
     cout << "Type 'quit' to exit" << endl;
+    cout << "Type 'A' for previous calculation" << endl;
     cout << "> ";
     getline(cin, input);
 
