@@ -16,8 +16,6 @@ Explain: +,-,*,/,(),Ans
 
 using namespace std;
 
-static Calculator* calc;
-
 string StringToLower(string input){
     string output = "";
     for(int i = 0; i < input.size(); i ++){
@@ -27,7 +25,7 @@ string StringToLower(string input){
 }
 
 int main(){
-    calc = new Calculator();
+    Calculator* calc = new Calculator();
 
     string input;
     cout << "Type 'quit' to exit" << endl;
