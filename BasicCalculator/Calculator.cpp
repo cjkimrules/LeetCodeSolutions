@@ -88,6 +88,24 @@ vector<string>* ParseString(string a_input){
 				s += input[pointer];
 				pointer ++;
 			}
+			else if(input[pointer] == 'S' || input[pointer] == 's'){
+				string sub = input.substr(pointer, 4);
+				for(int i = 0; i < sub.size(); i ++){
+					sub[i] = tolower(sub[i]);
+				}
+
+				if(sub == "sqrt"){
+					s = sub;
+					pointer += 4;
+					// Flip it here to cancel out the flip later on.
+					// Because "sqrt" is treated like a number, but we still expect
+					// to receive another number following it.
+					isNumber = !isNumber;
+				}else{
+					delete ret;
+					return nullptr;
+				}
+			}
 			// When it was an actual number
 			else{
 				// In a numbering system, there can only be one dot.
@@ -153,27 +171,26 @@ void Calculator::ParseTree(CalcTree* a_tree, vector<string>* a_inputs, int& a_in
     	}else if(a_inputs->at(i) == ")"){
     		a_index = i;
     		return;
-    	}else{
-			if(a_inputs->at(i) == "+" || a_inputs->at(i) == "-" ||
-			   a_inputs->at(i) == "*" || a_inputs->at(i) == "/"){
-				a_tree->Add(0.0f, a_inputs->at(i), nullptr);
+    	}else if(a_inputs->at(i) == "+" || a_inputs->at(i) == "-" ||
+    				a_inputs->at(i) == "*" || a_inputs->at(i) == "/" ||
+    				a_inputs->at(i) == "sqrt"){
+			a_tree->Add(0.0f, a_inputs->at(i), nullptr);
+		}else{
+			long double num;
+			
+			if(a_inputs->at(i) == "A" || a_inputs->at(i) == "a"){
+				num = m_prevResult;
 			}else{
-				long double num;
-				
-				if(a_inputs->at(i) == "A" || a_inputs->at(i) == "a"){
-					num = m_prevResult;
+				// If negative number
+				if(a_inputs->at(i)[0] == '-'){
+					num = -1 * stold(a_inputs->at(i).substr(1));
 				}else{
-					// If negative number
-					if(a_inputs->at(i)[0] == '-'){
-						num = -1 * stold(a_inputs->at(i).substr(1));
-					}else{
-						num = stold(a_inputs->at(i));
-					}
+					num = stold(a_inputs->at(i));
 				}
-
-				a_tree->Add(num, "", nullptr);
 			}
-    	}
+
+			a_tree->Add(num, "", nullptr);
+		}
     }
 }
 
@@ -186,6 +203,17 @@ long double Calculator::CalculateTree(){
 	m_prevResult = result;
 	return result;
 }
+
+// ParseString is O(n), n = # of chars.
+// ParseTree is O(kLog(k)), k = # of keywords.
+// CalculateTree is O(k), with k memory space (for recursion stack).
+//
+// Note that n and k are different because a number "12345" has 5 characters.
+// So n = 5, but it's essentially just one number, so k = 1.
+// Thus, n and k doesn't really have relations.
+//
+// Total time complexity is O(n + kLog(k))
+// Memory space is k.
 
 long double Calculator::Calculate(string a_input){
 	assert(("Bracket doesn't have proper pairing.", BracketCounter(a_input)));

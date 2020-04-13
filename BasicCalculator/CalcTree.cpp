@@ -5,7 +5,8 @@
 // 1. Number
 // 2. +, - (Superior)
 // 3. x, / (Inferior)
-// 4. SubTree (Any calculation within Brackets)
+// 4. sqrt
+// 5. SubTree (Any calculation within Brackets)
 CalcNode::CalcNode(long double a_val, string a_sym, CalcTree* a_subTree){
 	m_val = a_val;
 	m_symbol = a_sym;
@@ -63,6 +64,10 @@ CalcTree::~CalcTree(){
  *
  *			If the root is * or /, it becomes the root. (because for division, order matters)
  *			The entire tree becomes left child of the root.
+ *
+ * 4. For sqrt
+ *			This is treated like a number, it will find an empty spot and put there.
+ *			But this will also possess just one number (which will be on the right child).
  *
  * !!! For symbol, you must've had number or another symbol already as root.
  *		It is impossible to have symbol being added to the tree first.
@@ -141,6 +146,8 @@ long double CalcRecursion(CalcNode* a_base){
 		return CalcRecursion(a_base->m_left) * CalcRecursion(a_base->m_right);
 	}else if(a_base->m_symbol == "/"){
 		return CalcRecursion(a_base->m_left) / CalcRecursion(a_base->m_right);
+	}else if(a_base->m_symbol == "sqrt"){
+		return sqrt(CalcRecursion(a_base->m_right));
 	}else{
 		// Here, subTree.
 		return CalcRecursion(a_base->m_subTree->m_root);

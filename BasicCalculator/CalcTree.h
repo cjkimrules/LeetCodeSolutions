@@ -2,6 +2,8 @@
 #define _CALCTREE_H_
 
 #include <vector>
+#include <cmath>
+#include <cctype>
 #include <string>
 #include <queue>
 #include <iostream>
